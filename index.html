@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#6B21A8">
+    <meta name="description" content="Calcule la valeur de ton compte Brawl Stars en gemmes et en euros">
+    <title>Brawl Stars Calculateur de Valeur</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            overscroll-behavior: none;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .dark-mode {
+            --bg-from: #1a0a2e;
+            --bg-via: #16213e;
+            --bg-to: #0f3460;
+        }
+        .light-mode {
+            --bg-from: #e0c3fc;
+            --bg-via: #8ec5fc;
+            --bg-to: #fbc2eb;
+        }
+        .animate-pulse-slow {
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        .ad-banner {
+            min-height: 90px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 16px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .ad-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+    <!-- Emplacement pour Google AdSense (à activer après validation) -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX" crossorigin="anonymous"></script>
+
+    <script type="module">
+        // Traductions
+        const TRANSLATIONS = {
+            fr: {
+                title: "Brawl Calculator",
+                subtitle: "Découvre la valeur de ton compte !",
+                manual: "Manuel",
+                api: "API",
+                apiKey: "Clé API",
+                playerTag: "Tag du Joueur",
+                howToGet: "Comment l'obtenir ?",
+                close: "Fermer",
+                calculate: "Calculer",
+                calculateAPI: "🚀 Calculer via API",
+                calculateValue: "💎 Calculer la Valeur",
+                loading: "⏳ Chargement...",
+                accountValue: "Valeur de ton Compte",
+                gems: "Gemmes",
+                euros: "Euros",
+                details: "📊 Détails",
+                brawlers: "🎯 Brawlers",
+                powerLevels: "⚡ Niveaux",
+                skins: "👕 Skins",
+                icons: "🖼️ Icônes",
+                emotes: "😄 Émotes",
+                tags: "🏷️ Tags",
+                history: "📜 Historique",
+                clear: "🗑️ Effacer",
+                share: "📤 Partager le résultat",
+                avgLevel: "⚡ Niveau Moyen",
+                max: "Max",
+                tip: "💡 Astuce: Ajoute cette app à ton écran d'accueil !",
+                dataInfo: "Données basées sur les valeurs officielles Novembre 2025",
+                cloudSave: "☁️ Sauvegarde Cloud",
+                cloudLoad: "📥 Charger depuis le Cloud",
+                sync: "🔄 Synchroniser",
+                synced: "✅ Synchronisé",
+                syncError: "❌ Erreur de sync",
+                language: "🌍 Langue",
+                theme: "🎨 Thème",
+                dark: "Sombre",
+                light: "Clair"
+            },
+            en: {
+                title: "Brawl Calculator",
+                subtitle: "Discover your account's real value!",
+                manual: "Manual",
+                api: "API",
+                apiKey: "API Key",
+                playerTag: "Player Tag",
+                howToGet: "How to get it?",
+                close: "Close",
+                calculate: "Calculate",
+                calculateAPI: "🚀 Calculate via API",
+                calculateValue: "💎 Calculate Value",
+                loading: "⏳ Loading...",
+                accountValue: "Your Account Value",
+                gems: "Gems",
+                euros: "Euros",
+                details: "📊 Details",
+                brawlers: "🎯 Brawlers",
+                powerLevels: "⚡ Power Levels",
+                skins: "👕 Skins",
+                icons: "🖼️ Icons",
+                emotes: "😄 Emotes",
+                tags: "🏷️ Tags",
+                history: "📜 History",
+                clear: "🗑️ Clear",
+                share: "📤 Share Result",
+                avgLevel: "⚡ Avg Level",
+                max: "Max",
+                tip: "💡 Tip: Add this app to your home screen!",
+                dataInfo: "Data based on official values November 2025",
+                cloudSave: "☁️ Cloud Save",
+                cloudLoad: "📥 Load from Cloud",
+                sync: "🔄 Sync",
+                synced: "✅ Synced",
+                syncError: "❌ Sync Error",
+                language: "🌍 Language",
+                theme: "🎨 Theme",
+                dark: "Dark",
+                light: "Light"
+            },
+            es: {
+                title: "Brawl Calculator",
+                subtitle: "¡Descubre el valor real de tu cuenta!",
+                manual: "Manual",
+                api: "API",
+                apiKey: "Clave API",
+                playerTag: "Tag del Jugador",
+                howToGet: "¿Cómo obtenerla?",
+                close: "Cerrar",
+                calculate: "Calcular",
+                calculateAPI: "🚀 Calcular vía API",
+                calculateValue: "💎 Calcular Valor",
+                loading: "⏳ Cargando...",
+                accountValue: "Valor de tu Cuenta",
+                gems: "Gemas",
+                euros: "Euros",
+                details: "📊 Detalles",
+                brawlers: "🎯 Brawlers",
+                powerLevels: "⚡ Niveles",
+                skins: "👕 Skins",
+                icons: "🖼️ Iconos",
+                emotes: "😄 Emoticonos",
+                tags: "🏷️ Tags",
+                history: "📜 Historial",
+                clear: "🗑️ Borrar",
+                share: "📤 Compartir Resultado",
+                avgLevel: "⚡ Nivel Promedio",
+                max: "Máx",
+                tip: "💡 Consejo: ¡Añade esta app a tu pantalla de inicio!",
+                dataInfo: "Datos basados en valores oficiales Noviembre 2025",
+                cloudSave: "☁️ Guardar en la Nube",
+                cloudLoad: "📥 Cargar de la Nube",
+                sync: "🔄 Sincronizar",
+                synced: "✅ Sincronizado",
+                syncError: "❌ Error de sincronización",
+                language: "🌍 Idioma",
+                theme: "🎨 Tema",
+                dark: "Oscuro",
+                light: "Claro"
+            }
+        };
+
+        // Données du jeu
+        const GAME_DATA = {
+            brawlers: {
+                total: 85,
+                valuePerBrawler: 30,
+                powerLevels: {
+                    1: 0, 2: 20, 3: 35, 4: 75, 5: 140, 6: 290, 7: 480, 
+                    8: 800, 9: 1250, 10: 1840, 11: 2800
+                }
+            },
+            skins: {
+                'Commun': { gems: 29 },
+                'Rare': { gems: 79 },
+                'Super Rare': { gems: 149 },
+                'Épique': { gems: 299 },
+                'Légendaire': { gems: 399 }
+            },
+            icons: {
+                'Commun': { gems: 50 },
+                'Rare': { gems: 150 },
+                'Super Rare': { gems: 500 },
+                'Légendaire': { gems: 1500 }
+            },
+            emotes: {
+                'Commun': { gems: 30 },
+                'Rare': { gems: 79 },
+                'Épique': { gems: 149 },
+                'Légendaire': { gems: 299 }
+            },
+            tags: {
+                'Bronze': { gems: 0 },
+                'Argent': { gems: 50 },
+                'Or': { gems: 100 },
+                'Diamant': { gems: 200 },
+                'Mythique': { gems: 400 },
+                'Légendaire': { gems: 800 }
+            },
+            gemToEur: 0.0119
+        };
+
+        // État de l'application
+        let state = {
+            mode: 'manual',
+            apiKey: localStorage.getItem('brawl_api_key') || '',
+            playerTag: '',
+            loading: false,
+            history: JSON.parse(localStorage.getItem('brawl_history') || '[]'),
+            manualData: {
+                brawlers: 0,
+                avgPowerLevel: 1,
+                skins: { 'Commun': 0, 'Rare': 0, 'Super Rare': 0, 'Épique': 0, 'Légendaire': 0 },
+                icons: { 'Commun': 0, 'Rare': 0, 'Super Rare': 0, 'Légendaire': 0 },
+                emotes: { 'Commun': 0, 'Rare': 0, 'Épique': 0, 'Légendaire': 0 },
+                tags: { 'Bronze': 0, 'Argent': 0, 'Or': 0, 'Diamant': 0, 'Mythique': 0, 'Légendaire': 0 }
+            },
+            result: null,
+            showApiHelp: false,
+            language: localStorage.getItem('brawl_language') || 'fr',
+            theme: localStorage.getItem('brawl_theme') || 'dark',
+            cloudSyncStatus: 'idle',
+            showSettings: false,
+            adCount: 0
+        };
+
+        // Fonctions de traduction
+        function t(key) {
+            return TRANSLATIONS[state.language][key] || key;
+        }
+
+        // Calcul de la valeur
+        function calculateValue(data) {
+            let total = 0;
+            const breakdown = {};
+
+            breakdown.brawlers = data.brawlers * GAME_DATA.brawlers.valuePerBrawler;
+            total += breakdown.brawlers;
+
+            breakdown.powerLevels = data.brawlers * (GAME_DATA.brawlers.powerLevels[data.avgPowerLevel] || 0);
+            total += breakdown.powerLevels;
+
+            breakdown.skins = 0;
+            Object.entries(data.skins).forEach(([rarity, count]) => {
+                breakdown.skins += (GAME_DATA.skins[rarity]?.gems || 0) * count;
+            });
+            total += breakdown.skins;
+
+            breakdown.icons = 0;
+            Object.entries(data.icons).forEach(([rarity, count]) => {
+                breakdown.icons += (GAME_DATA.icons[rarity]?.gems || 0) * count;
+            });
+            total += breakdown.icons;
+
+            breakdown.emotes = 0;
+            Object.entries(data.emotes).forEach(([rarity, count]) => {
+                breakdown.emotes += (GAME_DATA.emotes[rarity]?.gems || 0) * count;
+            });
+            total += breakdown.emotes;
+
+            breakdown.tags = 0;
+            Object.entries(data.tags || {}).forEach(([rarity, count]) => {
+                breakdown.tags += (GAME_DATA.tags[rarity]?.gems || 0) * count;
+            });
+            total += breakdown.tags;
+
+            return {
+                totalGems: total,
+                totalEuros: total * GAME_DATA.gemToEur,
+                breakdown
+            };
+        }
+
+        // Sauvegarde Cloud (utilise le stockage persistant de Claude)
+        async function saveToCloud() {
+            try {
+                state.cloudSyncStatus = 'syncing';
+                render();
+
+                const cloudData = {
+                    manualData: state.manualData,
+                    history: state.history,
+                    lastSync: new Date().toISOString()
+                };
+
+                await window.storage.set('brawl_cloud_data', JSON.stringify(cloudData));
+                
+                state.cloudSyncStatus = 'synced';
+                setTimeout(() => {
+                    state.cloudSyncStatus = 'idle';
+                    render();
+                }, 2000);
+                render();
+            } catch (error) {
+                state.cloudSyncStatus = 'error';
+                console.error('Cloud save error:', error);
+                render();
+            }
+        }
+
+        async function loadFromCloud() {
+            try {
+                state.cloudSyncStatus = 'syncing';
+                render();
+
+                const result = await window.storage.get('brawl_cloud_data');
+                
+                if (result && result.value) {
+                    const cloudData = JSON.parse(result.value);
+                    state.manualData = cloudData.manualData;
+                    state.history = cloudData.history;
+                    
+                    localStorage.setItem('brawl_history', JSON.stringify(state.history));
+                    
+                    state.cloudSyncStatus = 'synced';
+                    alert('✅ ' + (state.language === 'fr' ? 'Données chargées depuis le cloud !' : 
+                                   state.language === 'es' ? '¡Datos cargados desde la nube!' : 
+                                   'Data loaded from cloud!'));
+                } else {
+                    alert('⚠️ ' + (state.language === 'fr' ? 'Aucune sauvegarde cloud trouvée' : 
+                                   state.language === 'es' ? 'No se encontró copia de seguridad' : 
+                                   'No cloud backup found'));
+                    state.cloudSyncStatus = 'idle';
+                }
+                
+                setTimeout(() => {
+                    state.cloudSyncStatus = 'idle';
+                    render();
+                }, 2000);
+                render();
+            } catch (error) {
+                state.cloudSyncStatus = 'error';
+                console.error('Cloud load error:', error);
+                alert('❌ ' + (state.language === 'fr' ? 'Erreur lors du chargement' : 
+                               state.language === 'es' ? 'Error al cargar' : 
+                               'Error loading data'));
+                render();
+            }
+        }
+
+        // API Brawl Stars
+        async function fetchFromAPI() {
+            if (!state.apiKey || !state.playerTag) {
+                alert('⚠️ ' + (state.language === 'fr' ? 'Entre ta clé API et ton tag !' : 
+                               state.language === 'es' ? '¡Ingresa tu clave API y tag!' : 
+                               'Enter your API key and tag!'));
+                return;
+            }
+
+            state.loading = true;
+            render();
+
+            try {
+                const tag = state.playerTag.replace('#', '');
+                const response = await fetch(`https://api.brawlstars.com/v1/players/%23${tag}`, {
+                    headers: { 'Authorization': `Bearer ${state.apiKey}` }
+                });
+
+                if (!response.ok) throw new Error('API Error');
+
+                const data = await response.json();
+                const avgPower = data.brawlers.length > 0
+                    ? Math.round(data.brawlers.reduce((sum, b) => sum + b.power, 0) / data.brawlers.length)
+                    : 1;
+
+                const apiData = {
+                    brawlers: data.brawlers.length,
+                    avgPowerLevel: avgPower,
+                    skins: { 'Commun': 0, 'Rare': 0, 'Super Rare': 0, 'Épique': 0, 'Légendaire': 0 },
+                    icons: { 'Commun': 0, 'Rare': 0, 'Super Rare': 0, 'Légendaire': 0 },
+                    emotes: { 'Commun': 0, 'Rare': 0, 'Épique': 0, 'Légendaire': 0 },
+                    tags: { 'Bronze': 0, 'Argent': 0, 'Or': 0, 'Diamant': 0, 'Mythique': 0, 'Légendaire': 0 }
+                };
+
+                state.result = calculateValue(apiData);
+                saveToHistory(data.name, state.result);
+                localStorage.setItem('brawl_api_key', state.apiKey);
+                
+            } catch (error) {
+                alert('❌ ' + error.message);
+            }
+
+            state.loading = false;
+            render();
+        }
+
+        function calculateManual() {
+            if (state.manualData.brawlers === 0) {
+                alert('⚠️ ' + t('brawlers'));
+                return;
+            }
+            state.result = calculateValue(state.manualData);
+            saveToHistory('Manual', state.result);
+            
+            // Afficher une pub tous les 3 calculs
+            state.adCount++;
+            if (state.adCount % 3 === 0) {
+                showInterstitialAd();
+            }
+            
+            render();
+        }
+
+        function saveToHistory(name, result) {
+            const entry = {
+                date: new Date().toLocaleString(state.language === 'fr' ? 'fr-FR' : state.language === 'es' ? 'es-ES' : 'en-US'),
+                name,
+                ...result
+            };
+            state.history.unshift(entry);
+            state.history = state.history.slice(0, 10);
+            localStorage.setItem('brawl_history', JSON.stringify(state.history));
+        }
+
+        function clearHistory() {
+            if (confirm('🗑️ ' + t('clear') + '?')) {
+                state.history = [];
+                localStorage.removeItem('brawl_history');
+                render();
+            }
+        }
+
+        function changeLanguage(lang) {
+            state.language = lang;
+            localStorage.setItem('brawl_language', lang);
+            render();
+        }
+
+        function changeTheme(theme) {
+            state.theme = theme;
+            localStorage.setItem('brawl_theme', theme);
+            document.body.className = theme === 'dark' ? 'dark-mode' : 'light-mode';
+            render();
+        }
+
+        // Système de publicité (simulation)
+        function showInterstitialAd() {
+            const adOverlay = document.createElement('div');
+            adOverlay.className = 'fixed inset-0 bg-black/90 z-50 flex items-center justify-center';
+            adOverlay.innerHTML = `
+                <div class="bg-white rounded-2xl p-8 max-w-md mx-4 text-center">
+                    <div class="ad-banner mb-4">
+                        <div class="text-white font-bold">
+                            <p class="text-2xl mb-2">📢 PUBLICITÉ</p>
+                            <p class="text-sm">Ceci est un emplacement publicitaire</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">Pub interstitielle (après 3 calculs)</p>
+                    <button onclick="this.closest('.fixed').remove()" 
+                        class="bg-purple-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-purple-700">
+                        Fermer (5s)
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(adOverlay);
+            
+            setTimeout(() => {
+                adOverlay.querySelector('button').disabled = false;
+            }, 5000);
+        }
+
+        // Interface
+        function render() {
+            document.body.className = state.theme === 'dark' ? 'dark-mode' : 'light-mode';
+            const isDark = state.theme === 'dark';
+            const bgClass = isDark ? 'bg-gradient-to-br from-purple-900 via-blue-900 to-purple-800' : 'bg-gradient-to-br from-pink-200 via-blue-200 to-purple-200';
+            const cardBg = isDark ? 'bg-white/10' : 'bg-white/60';
+            const textClass = isDark ? 'text-white' : 'text-gray-900';
+            const textSecondary = isDark ? 'text-purple-200' : 'text-gray-700';
+            
+            const app = document.getElementById('app');
+            app.innerHTML = `
+                <div class="${bgClass} min-h-screen p-4 pb-20 transition-all duration-300">
+                    <div class="max-w-4xl mx-auto">
+                        <!-- Header -->
+                        <div class="text-center mb-6 pt-8 relative">
+                            <button onclick="toggleSettings()" class="absolute top-4 right-4 ${textClass} p-2 ${cardBg} backdrop-blur-lg rounded-xl hover:scale-110 transition-all">
+                                ⚙️
+                            </button>
+                            <div class="text-6xl mb-4 animate-pulse-slow">💎</div>
+                            <h1 class="text-4xl md:text-5xl font-bold ${textClass} mb-2">${t('title')}</h1>
+                            <p class="${textSecondary}">${t('subtitle')}</p>
+                        </div>
+
+                        <!-- Settings Panel -->
+                        ${state.showSettings ? `
+                            <div class="${cardBg} backdrop-blur-lg rounded-2xl p-6 mb-6 shadow-2xl">
+                                <h3 class="${textClass} font-bold text-xl mb-4">⚙️ Paramètres</h3>
+                                
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="${textClass} font-bold mb-2 block">${t('language')}</label>
+                                        <div class="grid grid-cols-3 gap-2">
+                                            ${['fr', 'en', 'es'].map(lang => `
+                                                <button onclick="changeLanguage('${lang}')" 
+                                                    class="py-2 px-4 rounded-xl font-bold transition-all ${state.language === lang ? 'bg-yellow-400 text-purple-900' : cardBg + ' ' + textClass}">
+                                                    ${lang === 'fr' ? '🇫🇷 FR' : lang === 'en' ? '🇬🇧 EN' : '🇪🇸 ES'}
+                                                </button>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="${textClass} font-bold mb-2 block">${t('theme')}</label>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <button onclick="changeTheme('dark')" 
+                                                class="py-2 px-4 rounded-xl font-bold transition-all ${state.theme === 'dark' ? 'bg-yellow-400 text-purple-900' : cardBg + ' ' + textClass}">
+                                                🌙 ${t('dark')}
+                                            </button>
+                                            <button onclick="changeTheme('light')" 
+                                                class="py-2 px-4 rounded-xl font-bold transition-all ${state.theme === 'light' ? 'bg-yellow-400 text-purple-900' : cardBg + ' ' + textClass}">
+                                                ☀️ ${t('light')}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="pt-4 border-t ${isDark ? 'border-white/20' : 'border-gray-300'}">
+                                        <button onclick="saveToCloud()" 
+                                            class="w-full bg-blue-500 text-white py-3 rounded-xl font-bold hover:bg-blue-600 transition-all mb-2 ${state.cloudSyncStatus === 'syncing' ? 'opacity-50' : ''}">
+                                            ${state.cloudSyncStatus === 'syncing' ? t('sync') : 
+                                              state.cloudSyncStatus === 'synced' ? t('synced') : 
+                                              state.cloudSyncStatus === 'error' ? t('syncError') : 
+                                              t('cloudSave')}
+                                        </button>
+                                        <button onclick="loadFromCloud()" 
+                                            class="w-full bg-green-500 text-white py-3 rounded-xl font-bold hover:bg-green-600 transition-all">
+                                            ${t('cloudLoad')}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        <!-- Bannière Pub Top -->
+                        <div class="ad-banner">
+                            <div class="text-white font-bold text-center">
+                                <p class="text-xl">📢 PUBLICITÉ</p>
+                                <p class="text-xs mt-1">Bannière publicitaire 728x90</p>
+                                <p class="text-xs">(Google AdSense à intégrer)</p>
+                            </div>
+                        </div>
+
+                        <!-- Mode Selector -->
+                        <div class="${cardBg} backdrop-blur-lg rounded-2xl p-4 mb-6 shadow-2xl">
+                            <div class="grid grid-cols-2 gap-2 mb-6">
+                                <button onclick="switchMode('manual')" class="py-3 px-4 rounded-xl font-bold transition-all ${state.mode === 'manual' ? 'bg-yellow-400 text-purple-900 shadow-lg scale-105' : cardBg + ' ' + textClass}">
+                                    ✍️ ${t('manual')}
+                                </button>
+                                <button onclick="switchMode('api')" class="py-3 px-4 rounded-xl font-bold transition-all ${state.mode === 'api' ? 'bg-yellow-400 text-purple-900 shadow-lg scale-105' : cardBg + ' ' + textClass}">
+                                    🔍 ${t('api')}
+                                </button>
+                            </div>
+
+                            ${state.mode === 'api' ? renderAPIMode(isDark, cardBg, textClass, textSecondary) : renderManualMode(isDark, cardBg, textClass, textSecondary)}
+                        </div>
+
+                        ${state.result ? renderResults(isDark, textClass) : ''}
+                        ${state.history.length > 0 ? renderHistory(isDark, cardBg, textClass, textSecondary) : ''}
+
+                        <!-- Bannière Pub Bottom -->
+                        <div class="ad-banner">
+                            <div class="text-white font-bold text-center">
+                                <p class="text-xl">📢 PUBLICITÉ</p>
+                                <p class="text-xs mt-1">Bannière publicitaire 728x90</p>
+                            </div>
+                        </div>
+
+                        <div class="text-center ${textSecondary} text-sm mt-8">
+                            <p>${t('tip')}</p>
+                            <p class="mt-2 text-xs">${t('dataInfo')}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderAPIMode(isDark, cardBg, textClass, textSecondary) {
+            return `
+                <div class="space-y-4">
+                    <div>
+                        <label class="${textClass} font-bold mb-2 block">${t('apiKey')}</label>
+                        <input type="text" value="${state.apiKey}" 
+                            placeholder="eyJ0eXAiOiJKV1QiLCJhbGc..."
+                            class="w-full px-4 py-3 rounded-xl ${cardBg} ${textClass} placeholder-gray-400 border-2 ${isDark ? 'border-white/30' : 'border-gray-300'} focus:border-yellow-400 focus:outline-none"
+                            oninput="state.apiKey = this.value">
+                    </div>
+                    <div>
+                        <label class="${textClass} font-bold mb-2 block">${t('playerTag')}</label>
+                        <input type="text" value="${state.playerTag}" 
+                            placeholder="#2PP"
+                            class="w-full px-4 py-3 rounded-xl ${cardBg} ${textClass} placeholder-gray-400 border-2 ${isDark ? 'border-white/30' : 'border-gray-300'} focus:border-yellow-400 focus:outline-none"
+                            oninput="state.playerTag = this.value.toUpperCase()">
+                    </div>
+                    <button onclick="fetchFromAPI()" 
+                        class="w-full bg-gradient-to-r from-yellow-400 to-orange-400 text-purple-900 py-4 px-6 rounded-xl font-bold text-lg hover:scale-105 transition-all shadow-lg ${state.loading ? 'opacity-50' : ''}"
+                        ${state.loading ? 'disabled' : ''}>
+                        ${state.loading ? t('loading') : t('calculateAPI')}
+                    </button>
+                </div>
+            `;
+        }
+
+        function renderManualMode(isDark, cardBg, textClass, textSecondary) {
+            return `
+                <div class="space-y-5">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="${textClass} font-bold mb-2 block">${t('brawlers')}</label>
+                            <input type="number" min="0" max="85" value="${state.manualData.brawlers}"
+                                class="w-full px-4 py-3 rounded-xl ${cardBg} ${textClass} text-center text-2xl font-bold border-2 ${isDark ? 'border-white/30' : 'border-gray-300'} focus:border-yellow-400 focus:outline-none"
+                                oninput="state.manualData.brawlers = parseInt(this.value) || 0">
+                            <p class="${textSecondary} text-xs text-center mt-1">${t('max')}: 85</p>
+                        </div>
+                        <div>
+                            <label class="${textClass} font-bold mb-2 block">${t('avgLevel')}</label>
+                            <select value="${state.manualData.avgPowerLevel}"
+                                class="w-full px-4 py-3 rounded-xl ${cardBg} ${textClass} text-center text-2xl font-bold border-2 ${isDark ? 'border-white/30' : 'border-gray-300'} focus:border-yellow-400 focus:outline-none"
+                                onchange="state.manualData.avgPowerLevel = parseInt(this.value)">
+                                ${[1,2,3,4,5,6,7,8,9,10,11].map(l => `<option value="${l}" class="${isDark ? 'bg-purple-900' : 'bg-white'}">Niv. ${l}</option>`).join('')}
+                            </select>
+                        </div>
+                    </div>
+
+                    ${renderCategoryInput('skins', t('skins'), GAME_DATA.skins, isDark, cardBg, textClass, textSecondary)}
+                    ${renderCategoryInput('icons', t('icons'), GAME_DATA.icons, isDark, cardBg, textClass, textSecondary)}
+                    ${renderCategoryInput('emotes', t('emotes'), GAME_DATA.emotes, isDark, cardBg, textClass, textSecondary)}
+                    ${renderCategoryInput('tags', t('tags'), GAME_DATA.tags, isDark, cardBg, textClass, textSecondary)}
+
+                    <button onclick="calculateManual()" 
+                        class="w-full bg-gradient-to-r from-yellow-400 to-orange-400 text-purple-900 py-4 px-6 rounded-xl font-bold text-lg hover:scale-105 transition-all shadow-lg">
+                        ${t('calculateValue')}
+                    </button>
+                </div>
+            `;
+        }
+
+        function renderCategoryInput(category, title, data, isDark, cardBg, textClass, textSecondary) {
+            return `
+                <div class="${isDark ? 'bg-white/5' : 'bg-gray-100/50'} rounded-xl p-4">
+                    <h3 class="${textClass} font-bold mb-3">${title}</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                        ${Object.keys(data).map(rarity => `
+                            <div>
+                                <label class="${textSecondary} text-xs mb-1 block">${rarity} (${data[rarity].gems}💎)</label>
+                                <input type="number" min="0" value="${state.manualData[category][rarity] || 0}"
+                                    class="w-full px-3 py-2 rounded-lg ${cardBg} ${textClass} text-center font-bold border ${isDark ? 'border-white/30' : 'border-gray-300'} focus:border-yellow-400 focus:outline-none"
+                                    oninput="state.manualData.${category}['${rarity}'] = parseInt(this.value) || 0">
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderResults(isDark, textClass) {
+            return `
+                <div class="bg-gradient-to-br from-yellow-400 via-orange-400 to-pink-400 rounded-2xl p-6 shadow-2xl mb-6 animate-pulse-slow">
+                    <div class="text-center mb-6">
+                        <div class="text-6xl mb-3">✨</div>
+                        <h2 class="text-3xl font-bold text-purple-900">${t('accountValue')}</h2>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="bg-white/40 backdrop-blur rounded-xl p-6 text-center">
+                            <div class="text-4xl mb-2">💎</div>
+                            <p class="text-purple-900 font-bold mb-1">${t('gems')}</p>
+                            <p class="text-4xl font-black text-purple-900">${state.result.totalGems.toLocaleString(state.language === 'fr' ? 'fr-FR' : state.language === 'es' ? 'es-ES' : 'en-US')}</p>
+                        </div>
+                        <div class="bg-white/40 backdrop-blur rounded-xl p-6 text-center">
+                            <div class="text-4xl mb-2">💰</div>
+                            <p class="text-purple-900 font-bold mb-1">${t('euros')}</p>
+                            <p class="text-4xl font-black text-purple-900">${state.result.totalEuros.toFixed(2)}€</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white/30 backdrop-blur rounded-xl p-5">
+                        <h3 class="text-xl font-bold text-purple-900 mb-4">${t('details')}</h3>
+                        <div class="space-y-2 text-sm">
+                            ${Object.entries(state.result.breakdown).map(([key, value]) => `
+                                <div class="flex justify-between items-center bg-white/20 rounded-lg px-3 py-2">
+                                    <span class="text-purple-900 font-semibold">${t(key)}:</span>
+                                    <span class="font-bold text-purple-900">${value.toLocaleString(state.language === 'fr' ? 'fr-FR' : state.language === 'es' ? 'es-ES' : 'en-US')} 💎</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <button onclick="shareResult()" class="w-full mt-4 bg-purple-900 text-white py-3 rounded-xl font-bold hover:bg-purple-800 transition-all">
+                        ${t('share')}
+                    </button>
+                </div>
+
+                <!-- Pub interstitielle légère -->
+                <div class="ad-banner mb-6">
+                    <div class="text-white font-bold text-center">
+                        <p class="text-lg">📢 PUBLICITÉ</p>
+                        <p class="text-xs mt-1">Emplacement publicitaire natif</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderHistory(isDark, cardBg, textClass, textSecondary) {
+            return `
+                <div class="${cardBg} backdrop-blur-lg rounded-2xl p-6 shadow-2xl">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold ${textClass}">${t('history')}</h3>
+                        <button onclick="clearHistory()" class="text-red-400 hover:text-red-300 text-sm font-bold">
+                            ${t('clear')}
+                        </button>
+                    </div>
+                    <div class="space-y-3">
+                        ${state.history.map(entry => `
+                            <div class="${isDark ? 'bg-white/10' : 'bg-white/50'} rounded-xl p-4">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div>
+                                        <p class="${textClass} font-bold">${entry.name}</p>
+                                        <p class="${textSecondary} text-xs">${entry.date}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-yellow-400 font-bold text-lg">${entry.totalGems.toLocaleString(state.language === 'fr' ? 'fr-FR' : state.language === 'es' ? 'es-ES' : 'en-US')} 💎</p>
+                                        <p class="text-green-400 font-bold">${entry.totalEuros.toFixed(2)}€</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Actions globales
+        window.switchMode = (mode) => {
+            state.mode = mode;
+            render();
+        };
+
+        window.toggleSettings = () => {
+            state.showSettings = !state.showSettings;
+            render();
+        };
+
+        window.fetchFromAPI = fetchFromAPI;
+        window.calculateManual = calculateManual;
+        window.clearHistory = clearHistory;
+        window.changeLanguage = changeLanguage;
+        window.changeTheme = changeTheme;
+        window.saveToCloud = saveToCloud;
+        window.loadFromCloud = loadFromCloud;
+
+        window.shareResult = async () => {
+            const messages = {
+                fr: `Mon compte Brawl Stars vaut ${state.result.totalGems.toLocaleString('fr-FR')} 💎 (${state.result.totalEuros.toFixed(2)}€) ! Calcule le tien !`,
+                en: `My Brawl Stars account is worth ${state.result.totalGems.toLocaleString('en-US')} 💎 (${state.result.totalEuros.toFixed(2)}€)! Calculate yours!`,
+                es: `¡Mi cuenta de Brawl Stars vale ${state.result.totalGems.toLocaleString('es-ES')} 💎 (${state.result.totalEuros.toFixed(2)}€)! ¡Calcula la tuya!`
+            };
+            const text = messages[state.language];
+            
+            if (navigator.share) {
+                try {
+                    await navigator.share({ text });
+                } catch (err) {
+                    console.log('Share cancelled');
+                }
+            } else {
+                navigator.clipboard.writeText(text);
+                alert('📋 ' + (state.language === 'fr' ? 'Copié !' : state.language === 'es' ? '¡Copiado!' : 'Copied!'));
+            }
+        };
+
+        // Initialisation
+        changeTheme(state.theme);
+        render();
+    </script>
+</body>
+</html>
